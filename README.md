@@ -1,97 +1,155 @@
-# Sistema de Posventa para Comida Rápida
+# 🍔 FastFood - Sistema Completo de Gestión para Restaurantes
 
-Sistema completo de gestión de atención posventa para restaurantes de comida rápida. Permite a los clientes crear y dar seguimiento a tickets de reclamos, mientras que los administradores pueden gestionar todos los tickets y visualizar estadísticas en tiempo real.
+Sistema integral de gestión para restaurantes de comida rápida que incluye pedidos en línea, gestión de productos, atención posventa y panel administrativo completo.
 
-## Características Principales
+## ✨ Características Principales
 
-### Portal del Cliente
-- ✅ Crear tickets de reclamo con información detallada
-- ✅ Ver historial completo de tickets
-- ✅ Seguimiento en tiempo real del estado
-- ✅ Sistema de búsqueda por asunto o número de pedido
-- ✅ Visualización de respuestas del administrador
-- ✅ Sistema de calificación de atención
+### 🛒 Sistema de Pedidos en Línea
+- ✅ Menú público con productos por categoría
+- ✅ Carrito de compras con persistencia
+- ✅ Checkout con validación completa
+- ✅ Seguimiento de pedidos en tiempo real
+- ✅ Historial de pedidos
+- ✅ Confirmación y detalles del pedido
 
-### Panel Administrativo
+### 👤 Portal del Cliente
+- ✅ Navegación y compra sin autenticación
+- ✅ Registro e inicio de sesión
+- ✅ Creación de tickets de reclamo
+- ✅ Seguimiento de tickets
+- ✅ Historial completo de pedidos
+- ✅ Sistema de calificación
+
+### 👨‍🍳 Panel de Cocina/Staff
+- ✅ Vista de pedidos en tiempo real
+- ✅ Filtros por estado (Pendiente, Preparando, Listo)
+- ✅ Actualización automática cada 30 segundos
+- ✅ Cambio de estados de pedidos
+- ✅ Vista de notas especiales
+- ✅ Información del cliente y entrega
+
+### 👨‍💼 Panel Administrativo
 - ✅ Dashboard con métricas clave
-- ✅ Estadísticas de tickets (abiertos, en proceso, resueltos, cerrados)
-- ✅ Calificación promedio de satisfacción
-- ✅ Tiempo promedio de resolución
-- ✅ Gráficos de distribución por categoría
-- ✅ Gestión completa de tickets
-- ✅ Búsqueda y filtros avanzados
-- ✅ Sistema de respuesta a clientes
-- ✅ Cambio de estados de tickets
+- ✅ Estadísticas de ventas e ingresos
+- ✅ Gestión de productos (CRUD con API)
+- ✅ Gestión de categorías (CRUD con API)
+- ✅ Gestión de tickets de soporte
+- ✅ Vista de pedidos recientes
+- ✅ Sistema de roles y permisos
 
-### Categorías de Atención
-- Pedido Incorrecto
-- Pedido Frío
-- Falta Producto
-- Calidad del Producto
-- Tiempo de Entrega
-- Servicio al Cliente
-- Otro
+## 🛠️ Tecnologías Utilizadas
 
-### Niveles de Prioridad
-- Baja
-- Media
-- Alta
-- Urgente
-
-### Estados de Tickets
-- Abierto
-- En Proceso
-- Resuelto
-- Cerrado
-
-## Tecnologías Utilizadas
-
+### Frontend
 - **Next.js 15** - Framework React con App Router
 - **React 19** - Biblioteca de UI
 - **TypeScript** - Tipado estático
-- **Tailwind CSS 4** - Estilos
+- **Tailwind CSS 4** - Estilos modernos
 - **Lucide React** - Iconos
 - **Context API** - Gestión de estado
-- **LocalStorage** - Persistencia de datos
 
-## Estructura del Proyecto
+### Backend & Database
+- **Prisma ORM** - ORM para TypeScript
+- **PostgreSQL** - Base de datos relacional
+- **NextAuth.js** - Autenticación
+- **bcryptjs** - Hash de contraseñas
+- **Zod** - Validación de esquemas
+
+### APIs & Servicios (Opcionales)
+- **Uploadthing** - Upload de imágenes
+- **Resend** - Envío de emails
+- **Pusher** - Chat en tiempo real
+
+## 📁 Estructura del Proyecto
 
 ```
 nextjs_devlmer/
 ├── app/
-│   ├── page.tsx              # Página principal
-│   ├── layout.tsx            # Layout con Provider
-│   ├── cliente/              # Portal del cliente
-│   │   ├── page.tsx          # Lista de tickets del cliente
-│   │   └── nuevo/
-│   │       └── page.tsx      # Crear nuevo ticket
-│   └── admin/                # Panel administrativo
-│       ├── page.tsx          # Dashboard con estadísticas
-│       └── tickets/
-│           └── page.tsx      # Gestión de tickets
+│   ├── page.tsx                      # Página principal
+│   ├── layout.tsx                    # Layout global con providers
+│   ├── auth/                         # Autenticación
+│   │   ├── login/page.tsx           # Login
+│   │   └── register/page.tsx        # Registro
+│   ├── menu/page.tsx                # Menú público
+│   ├── cart/page.tsx                # Carrito de compras
+│   ├── checkout/page.tsx            # Checkout
+│   ├── orders/[id]/page.tsx         # Detalle de pedido
+│   ├── cliente/                     # Portal del cliente
+│   │   ├── page.tsx                 # Tickets del cliente
+│   │   └── nuevo/page.tsx           # Crear ticket
+│   ├── staff/page.tsx               # Panel de cocina
+│   ├── admin/                       # Panel administrativo
+│   │   ├── page.tsx                 # Dashboard admin
+│   │   ├── tickets/page.tsx         # Gestión de tickets
+│   │   ├── products/                # Gestión de productos (pendiente)
+│   │   └── categories/              # Gestión de categorías (pendiente)
+│   ├── api/                         # API REST
+│   │   ├── auth/                    # Auth endpoints
+│   │   ├── categories/              # CRUD de categorías
+│   │   ├── products/                # CRUD de productos
+│   │   └── orders/                  # CRUD de pedidos
 ├── components/
-│   └── ui/                   # Componentes reutilizables
-│       ├── Card.tsx
-│       ├── Button.tsx
-│       ├── Badge.tsx
-│       └── Input.tsx
+│   ├── ui/                          # Componentes reutilizables
+│   │   ├── Card.tsx
+│   │   ├── Button.tsx
+│   │   ├── Badge.tsx
+│   │   └── Input.tsx
+│   └── providers/
+│       └── SessionProvider.tsx      # Provider de sesión
 ├── context/
-│   └── TicketContext.tsx    # Context API para tickets
+│   ├── CartContext.tsx             # Context del carrito
+│   └── TicketContext.tsx           # Context de tickets
+├── lib/
+│   ├── prisma.ts                   # Cliente de Prisma
+│   └── auth.ts                     # Configuración de NextAuth
+├── prisma/
+│   ├── schema.prisma               # Schema de la base de datos
+│   └── seed.ts                     # Datos de prueba
 ├── types/
-│   └── index.ts             # Tipos TypeScript
-└── utils/
-    └── stats.ts             # Utilidades para estadísticas
+│   ├── index.ts                    # Tipos de la app
+│   └── next-auth.d.ts             # Tipos de NextAuth
+├── middleware.ts                   # Middleware de protección
+└── .env                           # Variables de entorno
 ```
 
-## Instalación y Uso
+## 🚀 Instalación y Configuración
 
-### Instalar dependencias
+### 1. Clonar el repositorio
+
+```bash
+git clone https://github.com/Dysa-Devlmer/nextjs_devlmer.git
+cd nextjs_devlmer
+git checkout claude/web-app-posventa-012qcfDLYQ7WpqumpSjiFdFV
+```
+
+### 2. Instalar dependencias
 
 ```bash
 npm install
 ```
 
-### Ejecutar en desarrollo
+### 3. Configurar Base de Datos
+
+Ver el archivo **SETUP.md** para instrucciones detalladas de configuración de PostgreSQL (local o en la nube).
+
+Configuración rápida con archivo `.env`:
+
+```env
+DATABASE_URL="postgresql://usuario:password@localhost:5432/fastfood_db"
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="tu-secret-key-aqui"
+```
+
+### 4. Ejecutar migraciones y seed
+
+```bash
+# Crear las tablas
+npm run db:push
+
+# Poblar con datos de ejemplo
+npm run db:seed
+```
+
+### 5. Iniciar la aplicación
 
 ```bash
 npm run dev
@@ -99,63 +157,194 @@ npm run dev
 
 Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
 
-### Compilar para producción
+## 👥 Usuarios de Prueba
+
+El sistema incluye usuarios precargados:
+
+| Rol | Email | Password | Descripción |
+|-----|-------|----------|-------------|
+| **Admin** | admin@fastfood.com | password123 | Acceso completo al sistema |
+| **Staff** | staff@fastfood.com | password123 | Panel de cocina |
+| **Cliente** | juan@email.com | password123 | Cliente de ejemplo 1 |
+| **Cliente** | maria@email.com | password123 | Cliente de ejemplo 2 |
+
+## 🗺️ Rutas de la Aplicación
+
+### Públicas
+- `/` - Página principal
+- `/menu` - Menú de productos (público)
+- `/auth/login` - Iniciar sesión
+- `/auth/register` - Registrarse
+
+### Clientes (Requiere autenticación)
+- `/cart` - Carrito de compras
+- `/checkout` - Procesar pedido
+- `/orders/[id]` - Detalle del pedido
+- `/cliente` - Mis tickets
+- `/cliente/nuevo` - Crear ticket
+
+### Staff (Requiere rol STAFF o ADMIN)
+- `/staff` - Panel de cocina
+
+### Admin (Requiere rol ADMIN)
+- `/admin` - Dashboard administrativo
+- `/admin/tickets` - Gestión de tickets
+- `/admin/products` - Gestión de productos (pendiente UI)
+- `/admin/categories` - Gestión de categorías (pendiente UI)
+
+## 🎯 Flujos de Usuario
+
+### Flujo de Pedido
+1. **Cliente navega** → Menú (`/menu`)
+2. **Agrega productos** → Carrito (`/cart`)
+3. **Inicia sesión** → Login (`/auth/login`)
+4. **Completa datos** → Checkout (`/checkout`)
+5. **Confirma pedido** → Detalle (`/orders/[id]`)
+6. **Staff prepara** → Panel Cocina (`/staff`)
+
+### Flujo de Ticket
+1. **Cliente tiene problema** → Crear Ticket (`/cliente/nuevo`)
+2. **Admin revisa** → Gestión (`/admin/tickets`)
+3. **Admin responde** → Actualiza ticket
+4. **Cliente califica** → Portal Cliente (`/cliente`)
+
+## 📊 Modelos de Base de Datos
+
+### User
+- Roles: ADMIN, STAFF, CLIENTE
+- Relaciones: Orders, Tickets, ChatMessages
+
+### Category & Product
+- Categorías de productos
+- Productos con precio e imagen
+- Estado activo/inactivo
+
+### Order & OrderItem
+- Estados: PENDIENTE, PREPARANDO, LISTO, ENTREGADO, CANCELADO
+- Cálculo automático de impuestos
+- Items con notas especiales
+
+### Ticket & ChatMessage
+- Sistema de tickets de soporte
+- Prioridades y categorías
+- Chat en tiempo real (preparado)
+
+## 🔌 APIs REST Disponibles
+
+### Categorías
+- `GET /api/categories` - Listar categorías
+- `POST /api/categories` - Crear categoría (ADMIN)
+- `GET /api/categories/[id]` - Obtener categoría
+- `PUT /api/categories/[id]` - Actualizar (ADMIN)
+- `DELETE /api/categories/[id]` - Eliminar (ADMIN)
+
+### Productos
+- `GET /api/products` - Listar productos
+- `POST /api/products` - Crear producto (ADMIN)
+- `GET /api/products/[id]` - Obtener producto
+- `PUT /api/products/[id]` - Actualizar (ADMIN)
+- `DELETE /api/products/[id]` - Eliminar (ADMIN)
+
+### Pedidos
+- `GET /api/orders` - Listar pedidos
+- `POST /api/orders` - Crear pedido
+- `GET /api/orders/[id]` - Obtener pedido
+- `PUT /api/orders/[id]` - Actualizar estado (STAFF/ADMIN)
+- `DELETE /api/orders/[id]` - Cancelar pedido
+
+### Autenticación
+- `POST /api/auth/register` - Registrar usuario
+- `POST /api/auth/[...nextauth]` - NextAuth endpoints
+
+## ⚙️ Scripts Útiles
 
 ```bash
-npm run build
-npm start
+# Desarrollo
+npm run dev                    # Iniciar servidor de desarrollo
+
+# Base de datos
+npm run db:push               # Aplicar schema a la base de datos
+npm run db:seed               # Poblar con datos de ejemplo
+npm run db:studio             # Abrir Prisma Studio
+
+# Producción
+npm run build                 # Compilar para producción
+npm start                     # Iniciar servidor de producción
 ```
 
-## Rutas de la Aplicación
+## 🎨 Características Técnicas
 
-- `/` - Página principal con opciones de navegación
-- `/cliente` - Portal del cliente para ver y crear tickets
-- `/cliente/nuevo` - Formulario para crear nuevo ticket
-- `/admin` - Dashboard administrativo con estadísticas
-- `/admin/tickets` - Gestión completa de tickets
-
-## Datos de Ejemplo
-
-La aplicación incluye 4 tickets de ejemplo con diferentes estados para demostración:
-- Cliente 1: Juan Pérez - Ticket abierto (pedido frío)
-- Cliente 2: María García - Ticket en proceso (falta producto)
-- Cliente 3: Carlos López - Ticket resuelto (pedido incorrecto)
-- Cliente 4: Ana Martínez - Ticket cerrado (servicio cliente)
-
-## Características Técnicas
+### Autenticación y Seguridad
+- ✅ NextAuth.js con credenciales
+- ✅ Hash de contraseñas con bcrypt
+- ✅ Middleware de protección de rutas
+- ✅ Sistema de roles granular
+- ✅ Sesiones con JWT
 
 ### Gestión de Estado
-- Context API para estado global de tickets
-- Persistencia automática en localStorage
-- Actualización en tiempo real
+- ✅ Context API para carrito
+- ✅ Context API para tickets
+- ✅ Session Provider global
+- ✅ Persistencia en localStorage
+- ✅ Actualización en tiempo real
 
-### Validación de Formularios
-- Validación de campos requeridos
-- Mensajes de error claros
-- Prevención de envíos inválidos
+### UI/UX
+- ✅ Diseño responsive
+- ✅ Componentes reutilizables
+- ✅ Iconos con Lucide React
+- ✅ Feedback visual
+- ✅ Loading states
+- ✅ Error handling
 
-### Búsqueda y Filtros
-- Búsqueda por texto (asunto, pedido, cliente)
-- Filtro por estado
-- Filtro por prioridad
-- Resultados en tiempo real
+### Base de Datos
+- ✅ Prisma ORM
+- ✅ Migraciones automáticas
+- ✅ Seed con datos de prueba
+- ✅ Relaciones complejas
+- ✅ Validación de integridad
 
-### Responsive Design
-- Diseño adaptable a móviles y escritorio
-- Grid responsivo
-- Navegación optimizada
+## 📈 Próximas Mejoras
 
-## Próximas Mejoras Sugeridas
+- [ ] UI para CRUD de productos en admin
+- [ ] UI para CRUD de categorías en admin
+- [ ] Upload de imágenes con Uploadthing
+- [ ] Notificaciones por email con Resend
+- [ ] Chat en tiempo real con Pusher
+- [ ] Exportación de reportes (PDF/Excel)
+- [ ] Dashboard con gráficos (Recharts)
+- [ ] Sistema de cupones y descuentos
+- [ ] Historial detallado de cambios
+- [ ] Notificaciones push
 
-- [ ] Integración con base de datos real
-- [ ] Sistema de autenticación
-- [ ] Notificaciones por email
-- [ ] Chat en tiempo real
-- [ ] Exportación de reportes
-- [ ] API REST
-- [ ] Adjuntar imágenes a tickets
-- [ ] Sistema de roles y permisos
+## 📝 Notas de Desarrollo
 
-## Licencia
+- El sistema usa Next.js 15 con Turbopack para desarrollo rápido
+- Las rutas de API están protegidas por roles
+- El middleware maneja redirecciones automáticas
+- Los datos se persisten en PostgreSQL
+- El carrito se guarda en localStorage
 
-Este proyecto es un sistema de demostración para gestión de posventa en restaurantes de comida rápida.
+## 🤝 Contribuir
+
+Este es un proyecto de demostración. Para contribuir:
+
+1. Fork el repositorio
+2. Crea una rama (`git checkout -b feature/nueva-funcionalidad`)
+3. Commit tus cambios (`git commit -am 'Agregar funcionalidad'`)
+4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
+5. Abre un Pull Request
+
+## 📄 Licencia
+
+Este proyecto es un sistema de demostración para gestión integral de restaurantes de comida rápida.
+
+## 🆘 Soporte
+
+Para configuración y problemas, consulta:
+- **SETUP.md** - Guía completa de configuración
+- **prisma/schema.prisma** - Estructura de la base de datos
+- **middleware.ts** - Reglas de protección de rutas
+
+---
+
+**Desarrollado con ❤️ usando Next.js 15, Prisma y PostgreSQL**
