@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { TicketProvider } from "@/context/TicketContext";
+import { SessionProvider } from "@/components/providers/SessionProvider";
 
 export const metadata: Metadata = {
-  title: "Sistema Posventa - FastFood",
-  description: "Sistema de atención posventa para restaurantes de comida rápida",
+  title: "FastFood - Sistema de Gestión",
+  description: "Sistema completo de gestión para restaurantes de comida rápida",
 };
 
 export default function RootLayout({
@@ -15,9 +16,11 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className="antialiased bg-gray-50">
-        <TicketProvider>
-          {children}
-        </TicketProvider>
+        <SessionProvider>
+          <TicketProvider>
+            {children}
+          </TicketProvider>
+        </SessionProvider>
       </body>
     </html>
   );
