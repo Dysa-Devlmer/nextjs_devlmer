@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { TicketProvider } from "@/context/TicketContext";
+import { CartProvider } from "@/context/CartContext";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 
 export const metadata: Metadata = {
@@ -17,9 +18,11 @@ export default function RootLayout({
     <html lang="es">
       <body className="antialiased bg-gray-50">
         <SessionProvider>
-          <TicketProvider>
-            {children}
-          </TicketProvider>
+          <CartProvider>
+            <TicketProvider>
+              {children}
+            </TicketProvider>
+          </CartProvider>
         </SessionProvider>
       </body>
     </html>
