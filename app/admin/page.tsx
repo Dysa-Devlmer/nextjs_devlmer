@@ -1,25 +1,82 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, BarChart3, Clock, Star, TrendingUp, AlertCircle, CheckCircle } from 'lucide-react';
-import { useTickets } from '@/context/TicketContext';
+import { useSession } from 'next-auth/react';
+import { redirect } from 'next/navigation';
+import {
+  ArrowLeft,
+  Package,
+  ShoppingBag,
+  Users,
+  DollarSign,
+  TrendingUp,
+  AlertCircle,
+  Settings,
+} from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { calculateStats, calculateCategoryStats } from '@/utils/stats';
 
 export default function AdminPage() {
-  const { tickets } = useTickets();
-  const stats = calculateStats(tickets);
-  const categoryStats = calculateCategoryStats(tickets);
+  const { data: session } = useSession();
+  const [stats, setStats] = useState({
+    totalOrders: 0,
+    totalProducts: 0,
+    totalCategories: 0,
+    revenue: 0,
+    pendingOrders: 0,
+    activeProducts: 0,
+  });
+  const [recentOrders, setRecentOrders] = useState<any[]>([]);
 
-  const categoryLabels: Record<string, string> = {
-    pedido_incorrecto: 'Pedido Incorrecto',
-    pedido_frio: 'Pedido Frío',
-    falta_producto: 'Falta Producto',
-    calidad_producto: 'Calidad',
-    tiempo_entrega: 'Tiempo Entrega',
-    servicio_cliente: 'Servicio',
-    otro: 'Otro',
+  if (!session || session.user.role !== 'ADMIN') {
+    redirect('/dashboard');
+  }
+
+  useEffect(() => {
+    fetchStats();
+    fetchRecentOrders();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      const [ordersRes, productsRes, categoriesRes] = await Promise.all([
+        fetch('/api/orders'),
+        fetch('/api/products'),
+        fetch('/api/categories'),
+      ]);
+
+      const [orders, products, categories] = await Promise.all([
+        ordersRes.json(),
+        productsRes.json(),
+        categoriesRes.json(),
+      ]);
+
+      const revenue = orders.reduce((sum: number, order: any) => sum + order.total, 0);
+      const pendingOrders = orders.filter((o: any) => o.estado === 'PENDIENTE' || o.estado === 'PREPARANDO').length;
+      const activeProducts = products.filter((p: any) => p.activo).length;
+
+      setStats({
+        totalOrders: orders.length,
+        totalProducts: products.length,
+        totalCategories: categories.length,
+        revenue,
+        pendingOrders,
+        activeProducts,
+      });
+    } catch (error) {
+      console.error('Error al cargar estadísticas:', error);
+    }
+  };
+
+  const fetchRecentOrders = async () => {
+    try {
+      const response = await fetch('/api/orders');
+      const data = await response.json();
+      setRecentOrders(data.slice(0, 5));
+    } catch (error) {
+      console.error('Error al cargar pedidos recientes:', error);
+    }
   };
 
   return (
@@ -32,10 +89,11 @@ export default function AdminPage() {
               <ArrowLeft className="w-5 h-5" />
               <span>Volver</span>
             </Link>
-            <h1 className="text-2xl font-bold text-gray-900">Panel Administrativo</h1>
-            <Link href="/admin/tickets">
-              <Button variant="primary">Gestionar Tickets</Button>
-            </Link>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Panel Administrativo</h1>
+              <p className="text-sm text-gray-600">Dashboard de Gestión</p>
+            </div>
+            <div className="w-20"></div>
           </div>
         </div>
       </header>
@@ -47,10 +105,13 @@ export default function AdminPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Total Tickets</p>
-                  <p className="text-3xl font-bold text-gray-900">{stats.total}</p>
+                  <p className="text-sm text-gray-600">Pedidos Total</p>
+                  <p className="text-3xl font-bold text-gray-900">{stats.totalOrders}</p>
+                  <p className="text-xs text-orange-600 mt-1">
+                    {stats.pendingOrders} pendientes
+                  </p>
                 </div>
-                <BarChart3 className="w-12 h-12 text-blue-600" />
+                <ShoppingBag className="w-12 h-12 text-blue-600" />
               </div>
             </CardContent>
           </Card>
@@ -59,10 +120,12 @@ export default function AdminPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Abiertos</p>
-                  <p className="text-3xl font-bold text-red-600">{stats.abiertos}</p>
+                  <p className="text-sm text-gray-600">Ingresos Total</p>
+                  <p className="text-3xl font-bold text-green-600">
+                    ${stats.revenue.toFixed(2)}
+                  </p>
                 </div>
-                <AlertCircle className="w-12 h-12 text-red-600" />
+                <DollarSign className="w-12 h-12 text-green-600" />
               </div>
             </CardContent>
           </Card>
@@ -71,10 +134,13 @@ export default function AdminPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">En Proceso</p>
-                  <p className="text-3xl font-bold text-yellow-600">{stats.enProceso}</p>
+                  <p className="text-sm text-gray-600">Productos</p>
+                  <p className="text-3xl font-bold text-gray-900">{stats.totalProducts}</p>
+                  <p className="text-xs text-green-600 mt-1">
+                    {stats.activeProducts} activos
+                  </p>
                 </div>
-                <Clock className="w-12 h-12 text-yellow-600" />
+                <Package className="w-12 h-12 text-purple-600" />
               </div>
             </CardContent>
           </Card>
@@ -83,124 +149,86 @@ export default function AdminPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Resueltos</p>
-                  <p className="text-3xl font-bold text-green-600">{stats.resueltos}</p>
+                  <p className="text-sm text-gray-600">Categorías</p>
+                  <p className="text-3xl font-bold text-gray-900">{stats.totalCategories}</p>
                 </div>
-                <CheckCircle className="w-12 h-12 text-green-600" />
+                <TrendingUp className="w-12 h-12 text-orange-600" />
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Métricas de Rendimiento */}
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Star className="w-6 h-6 text-yellow-500" />
-                <CardTitle>Calificación Promedio</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-center py-8">
-                <div className="text-center">
-                  <p className="text-6xl font-bold text-gray-900">
-                    {stats.promedioCalificacion.toFixed(1)}
-                  </p>
-                  <div className="flex justify-center mt-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <span
-                        key={star}
-                        className={`text-3xl ${
-                          star <= Math.round(stats.promedioCalificacion)
-                            ? 'text-yellow-500'
-                            : 'text-gray-300'
-                        }`}
-                      >
-                        ★
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-6 h-6 text-blue-600" />
-                <CardTitle>Tiempo Promedio de Resolución</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-center py-8">
-                <div className="text-center">
-                  <p className="text-6xl font-bold text-gray-900">
-                    {stats.tiempoPromedioResolucion.toFixed(1)}
-                  </p>
-                  <p className="text-xl text-gray-600 mt-2">horas</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Estadísticas por Categoría */}
-        <Card>
+        {/* Acciones Rápidas */}
+        <Card className="mb-8">
           <CardHeader>
-            <CardTitle>Tickets por Categoría</CardTitle>
+            <CardTitle>Gestión Rápida</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {categoryStats
-                .sort((a, b) => b.cantidad - a.cantidad)
-                .map((stat) => (
-                  <div key={stat.categoria}>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium text-gray-700">
-                        {categoryLabels[stat.categoria]}
-                      </span>
-                      <span className="text-sm text-gray-600">
-                        {stat.cantidad} ({stat.porcentaje.toFixed(1)}%)
-                      </span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-blue-600 h-2 rounded-full transition-all"
-                        style={{ width: `${stat.porcentaje}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Link href="/admin/products">
+                <Button variant="primary" fullWidth>
+                  <Package className="w-5 h-5 mr-2" />
+                  Gestionar Productos
+                </Button>
+              </Link>
+              <Link href="/admin/categories">
+                <Button variant="secondary" fullWidth>
+                  <Settings className="w-5 h-5 mr-2" />
+                  Gestionar Categorías
+                </Button>
+              </Link>
+              <Link href="/staff">
+                <Button variant="secondary" fullWidth>
+                  <ShoppingBag className="w-5 h-5 mr-2" />
+                  Ver Pedidos
+                </Button>
+              </Link>
+              <Link href="/admin/tickets">
+                <Button variant="secondary" fullWidth>
+                  <AlertCircle className="w-5 h-5 mr-2" />
+                  Ver Tickets
+                </Button>
+              </Link>
             </div>
           </CardContent>
         </Card>
 
-        {/* Resumen de Estado */}
-        <Card className="mt-8">
+        {/* Pedidos Recientes */}
+        <Card>
           <CardHeader>
-            <CardTitle>Distribución de Estados</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle>Pedidos Recientes</CardTitle>
+              <Link href="/staff">
+                <Button variant="secondary" size="sm">Ver Todos</Button>
+              </Link>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center p-4 bg-red-50 rounded-lg">
-                <p className="text-3xl font-bold text-red-600">{stats.abiertos}</p>
-                <p className="text-sm text-gray-600 mt-1">Abiertos</p>
+            {recentOrders.length === 0 ? (
+              <p className="text-center text-gray-500 py-8">No hay pedidos recientes</p>
+            ) : (
+              <div className="space-y-4">
+                {recentOrders.map((order) => (
+                  <div key={order.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div>
+                      <p className="font-semibold">Pedido #{order.numeroOrden}</p>
+                      <p className="text-sm text-gray-600">{order.user?.name || 'Cliente'}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-orange-600">${order.total.toFixed(2)}</p>
+                      <p className={`text-xs px-2 py-1 rounded-full inline-block ${
+                        order.estado === 'PENDIENTE' ? 'bg-yellow-100 text-yellow-800' :
+                        order.estado === 'PREPARANDO' ? 'bg-blue-100 text-blue-800' :
+                        order.estado === 'LISTO' ? 'bg-purple-100 text-purple-800' :
+                        'bg-green-100 text-green-800'
+                      }`}>
+                        {order.estado}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div className="text-center p-4 bg-yellow-50 rounded-lg">
-                <p className="text-3xl font-bold text-yellow-600">{stats.enProceso}</p>
-                <p className="text-sm text-gray-600 mt-1">En Proceso</p>
-              </div>
-              <div className="text-center p-4 bg-green-50 rounded-lg">
-                <p className="text-3xl font-bold text-green-600">{stats.resueltos}</p>
-                <p className="text-sm text-gray-600 mt-1">Resueltos</p>
-              </div>
-              <div className="text-center p-4 bg-gray-50 rounded-lg">
-                <p className="text-3xl font-bold text-gray-600">{stats.cerrados}</p>
-                <p className="text-sm text-gray-600 mt-1">Cerrados</p>
-              </div>
-            </div>
+            )}
           </CardContent>
         </Card>
       </main>
