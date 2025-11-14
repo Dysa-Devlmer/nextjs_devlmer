@@ -1,0 +1,219 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  STAFF
+  CLIENTE
+}
+
+enum OrderStatus {
+  PENDIENTE
+  PREPARANDO
+  LISTO
+  ENTREGADO
+  CANCELADO
+}
+
+enum TicketStatus {
+  ABIERTO
+  EN_PROCESO
+  RESUELTO
+  CERRADO
+}
+
+enum TicketPriority {
+  BAJA
+  MEDIA
+  ALTA
+  URGENTE
+}
+
+enum TicketCategory {
+  PEDIDO_INCORRECTO
+  PEDIDO_FRIO
+  FALTA_PRODUCTO
+  CALIDAD_PRODUCTO
+  TIEMPO_ENTREGA
+  SERVICIO_CLIENTE
+  OTRO
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          Role      @default(CLIENTE)
+  telefono      String?
+  direccion     String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  orders        Order[]
+  tickets       Ticket[]
+  chatMessages  ChatMessage[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  nombre      String    @unique
+  descripcion String?
+  imagen      String?
+  activo      Boolean   @default(true)
+  orden       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  products    Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id          String    @id @default(cuid())
+  nombre      String
+  descripcion String?
+  precio      Float
+  imagen      String?
+  activo      Boolean   @default(true)
+  destacado   Boolean   @default(false)
+  categoryId  String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  category    Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  orderItems  OrderItem[]
+
+  @@map("products")
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  numeroOrden     String      @unique
+  userId          String
+  total           Float
+  subtotal        Float
+  impuestos       Float       @default(0)
+  descuento       Float       @default(0)
+  estado          OrderStatus @default(PENDIENTE)
+  metodoPago      String?
+  notas           String?
+  direccionEntrega String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  user            User        @relation(fields: [userId], references: [id])
+  items           OrderItem[]
+  tickets         Ticket[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  orderId     String
+  productId   String
+  cantidad    Int
+  precioUnitario Float
+  subtotal    Float
+  notas       String?
+  createdAt   DateTime @default(now())
+
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     Product  @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+model Ticket {
+  id              String         @id @default(cuid())
+  userId          String
+  orderId         String?
+  numeroTicket    String         @unique
+  categoria       TicketCategory
+  prioridad       TicketPriority
+  estado          TicketStatus   @default(ABIERTO)
+  asunto          String
+  descripcion     String         @db.Text
+  respuesta       String?        @db.Text
+  imagenes        String[]       @default([])
+  calificacion    Int?
+  comentarioCalificacion String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  fechaResolucion DateTime?
+
+  user            User           @relation(fields: [userId], references: [id])
+  order           Order?         @relation(fields: [orderId], references: [id])
+  chatMessages    ChatMessage[]
+
+  @@map("tickets")
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  ticketId  String
+  userId    String
+  mensaje   String   @db.Text
+  createdAt DateTime @default(now())
+
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("chat_messages")
+}
