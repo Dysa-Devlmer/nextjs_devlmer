@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { sendEmail } from '@/lib/resend';
+import { orderStatusUpdateEmail } from '@/lib/emailTemplates';
 
 // GET - Obtener pedido por ID
 export async function GET(
@@ -104,6 +106,23 @@ export async function PUT(
         },
       },
     });
+
+    // Enviar email de actualización de estado
+    try {
+      await sendEmail(
+        order.user.email,
+        `Actualización de Pedido #${order.numeroOrden}`,
+        orderStatusUpdateEmail({
+          numeroOrden: order.numeroOrden,
+          userName: order.user.name || 'Cliente',
+          estado: order.estado,
+          total: order.total,
+        })
+      );
+    } catch (emailError) {
+      console.error('Error al enviar email de actualización:', emailError);
+      // No fallar la actualización si el email falla
+    }
 
     return NextResponse.json(order);
   } catch (error) {

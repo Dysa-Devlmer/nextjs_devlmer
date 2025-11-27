@@ -33,7 +33,7 @@ Sistema integral de gestión para restaurantes de comida rápida que incluye ped
 - ✅ Estadísticas de ventas e ingresos
 - ✅ Gestión completa de productos (CRUD con UI)
 - ✅ Gestión completa de categorías (CRUD con UI)
-- ✅ Gestión de tickets de soporte
+- ✅ Gestión de tickets de soporte con chat en tiempo real
 - ✅ Vista de pedidos recientes
 - ✅ Sistema de roles y permisos
 - ✅ Gráficos interactivos (Recharts):
@@ -47,6 +47,10 @@ Sistema integral de gestión para restaurantes de comida rápida que incluye ped
   - Exportación de pedidos
   - Exportación de productos
   - Exportación de categorías
+- ✅ Notificaciones automáticas por email:
+  - Confirmación de pedidos
+  - Actualizaciones de estado
+  - Tickets y respuestas
 
 ## 🛠️ Tecnologías Utilizadas
 
@@ -335,16 +339,29 @@ npm start                     # Iniciar servidor de producción
 - [x] Upload de imágenes con Uploadthing
 - [x] Exportación de reportes (PDF/Excel)
 - [x] Dashboard con gráficos interactivos (Recharts)
+- [x] **Notificaciones por email con Resend**:
+  - Email de bienvenida al registrarse
+  - Confirmación de pedido con detalles
+  - Actualización de estado de pedido
+  - Notificación de ticket creado
+  - Templates HTML responsivos y profesionales
+- [x] **Chat en tiempo real con Pusher**:
+  - Mensajes instantáneos en tickets
+  - Actualizaciones en tiempo real
+  - Historial completo de conversación
+  - Indicador de fecha y hora
+  - Separadores de fecha
+  - Fallback cuando Pusher no está configurado
 
 ## 🔮 Próximas Mejoras (Opcionales)
 
-- [ ] Notificaciones por email con Resend
-- [ ] Chat en tiempo real con Pusher
 - [ ] Sistema de cupones y descuentos
 - [ ] Historial detallado de cambios
-- [ ] Notificaciones push
+- [ ] Notificaciones push en navegador
 - [ ] Sistema de calificación de productos
 - [ ] Panel de analytics avanzado
+- [ ] Integración con pasarelas de pago
+- [ ] Sistema de inventario automático
 
 ## 📝 Notas de Desarrollo
 

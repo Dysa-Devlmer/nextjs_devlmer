@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { sendEmail } from '@/lib/resend';
+import { orderConfirmationEmail } from '@/lib/emailTemplates';
 
 // GET - Listar pedidos
 export async function GET(req: NextRequest) {
@@ -149,6 +151,31 @@ export async function POST(req: NextRequest) {
         },
       },
     });
+
+    // Enviar email de confirmación
+    try {
+      const emailItems = order.items.map(item => ({
+        nombre: item.product.nombre,
+        cantidad: item.cantidad,
+        precio: item.precioUnitario,
+      }));
+
+      await sendEmail(
+        order.user.email,
+        `Confirmación de Pedido #${order.numeroOrden}`,
+        orderConfirmationEmail({
+          numeroOrden: order.numeroOrden,
+          userName: order.user.name || 'Cliente',
+          items: emailItems,
+          total: order.total,
+          direccionEntrega: order.direccionEntrega,
+          metodoPago: order.metodoPago,
+        })
+      );
+    } catch (emailError) {
+      console.error('Error al enviar email de confirmación:', emailError);
+      // No fallar la creación del pedido si el email falla
+    }
 
     return NextResponse.json(order, { status: 201 });
   } catch (error) {
