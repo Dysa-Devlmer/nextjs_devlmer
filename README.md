@@ -15,10 +15,13 @@ Sistema integral de gestión para restaurantes de comida rápida que incluye ped
 ### 👤 Portal del Cliente
 - ✅ Navegación y compra sin autenticación
 - ✅ Registro e inicio de sesión
-- ✅ Creación de tickets de reclamo
-- ✅ Seguimiento de tickets
+- ✅ Creación de tickets de soporte
+- ✅ Seguimiento de tickets con estadísticas
+- ✅ **Chat en tiempo real** con equipo de soporte
+- ✅ Vista de detalle de tickets con historial
 - ✅ Historial completo de pedidos
-- ✅ Sistema de calificación
+- ✅ Categorización de tickets (pedido, producto, entrega, pago, general)
+- ✅ Niveles de prioridad (baja, media, alta, urgente)
 
 ### 👨‍🍳 Panel de Cocina/Staff
 - ✅ Vista de pedidos en tiempo real
@@ -205,8 +208,9 @@ El sistema incluye usuarios precargados:
 - `/cart` - Carrito de compras
 - `/checkout` - Procesar pedido
 - `/orders/[id]` - Detalle del pedido
-- `/cliente` - Mis tickets
-- `/cliente/nuevo` - Crear ticket
+- `/cliente/tickets` - Mis tickets de soporte
+- `/cliente/tickets/[id]` - Detalle de ticket con **chat en tiempo real**
+- `/cliente/nuevo` - Crear nuevo ticket
 
 ### Staff (Requiere rol STAFF o ADMIN)
 - `/staff` - Panel de cocina
@@ -214,6 +218,7 @@ El sistema incluye usuarios precargados:
 ### Admin (Requiere rol ADMIN)
 - `/admin` - Dashboard administrativo con gráficos interactivos
 - `/admin/tickets` - Gestión de tickets
+  - `/admin/tickets/[id]` - Detalle de ticket con **chat en tiempo real** y panel de gestión
 - `/admin/products` - Gestión de productos (con UI completa)
   - `/admin/products/new` - Crear producto
   - `/admin/products/[id]` - Editar producto
@@ -231,11 +236,15 @@ El sistema incluye usuarios precargados:
 5. **Confirma pedido** → Detalle (`/orders/[id]`)
 6. **Staff prepara** → Panel Cocina (`/staff`)
 
-### Flujo de Ticket
+### Flujo de Ticket con Chat en Tiempo Real
 1. **Cliente tiene problema** → Crear Ticket (`/cliente/nuevo`)
-2. **Admin revisa** → Gestión (`/admin/tickets`)
-3. **Admin responde** → Actualiza ticket
-4. **Cliente califica** → Portal Cliente (`/cliente`)
+2. **Sistema envía email** → Confirmación automática
+3. **Cliente abre chat** → Vista detalle (`/cliente/tickets/[id]`)
+4. **Chat en tiempo real** → Cliente ↔ Soporte
+5. **Admin/Staff responde** → Panel de gestión (`/admin/tickets/[id]`)
+6. **Conversación fluida** → Mensajes instantáneos con Pusher
+7. **Admin resuelve** → Actualiza estado del ticket
+8. **Cliente recibe notificación** → Email de actualización
 
 ## 📊 Modelos de Base de Datos
 
@@ -254,9 +263,13 @@ El sistema incluye usuarios precargados:
 - Items con notas especiales
 
 ### Ticket & ChatMessage
-- Sistema de tickets de soporte
-- Prioridades y categorías
-- Chat en tiempo real (preparado)
+- Sistema completo de tickets de soporte
+- Estados: ABIERTO, EN_PROCESO, RESUELTO, CERRADO
+- Prioridades: BAJA, MEDIA, ALTA, URGENTE
+- Categorías: pedido, producto, entrega, pago, general
+- **Chat en tiempo real** totalmente funcional
+- Mensajes con historial completo
+- Notificaciones por email
 
 ## 🔌 APIs REST Disponibles
 
@@ -276,10 +289,22 @@ El sistema incluye usuarios precargados:
 
 ### Pedidos
 - `GET /api/orders` - Listar pedidos
-- `POST /api/orders` - Crear pedido
+- `POST /api/orders` - Crear pedido (envía email de confirmación)
 - `GET /api/orders/[id]` - Obtener pedido
-- `PUT /api/orders/[id]` - Actualizar estado (STAFF/ADMIN)
+- `PUT /api/orders/[id]` - Actualizar estado (STAFF/ADMIN, envía email)
 - `DELETE /api/orders/[id]` - Cancelar pedido
+
+### Tickets
+- `GET /api/tickets` - Listar tickets (filtrado por rol)
+- `POST /api/tickets` - Crear ticket (envía email de confirmación)
+- `GET /api/tickets/[id]` - Obtener ticket
+- `PUT /api/tickets/[id]` - Actualizar ticket (STAFF/ADMIN)
+- `DELETE /api/tickets/[id]` - Eliminar ticket (ADMIN)
+
+### Chat (Tiempo Real)
+- `GET /api/chat?ticketId=[id]` - Obtener mensajes de un ticket
+- `POST /api/chat` - Enviar mensaje (con Pusher real-time)
+- Eventos Pusher: `ticket-{id}` → `new-message`
 
 ### Autenticación
 - `POST /api/auth/register` - Registrar usuario
