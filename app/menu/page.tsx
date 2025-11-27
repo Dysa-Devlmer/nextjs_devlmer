@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { ShoppingCart, Plus, Minus, Search, ArrowLeft } from 'lucide-react';
+import { ShoppingCart, Plus, Minus, Search, ArrowLeft, User } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -103,17 +103,27 @@ export default function MenuPage() {
               <span>Volver</span>
             </Link>
             <h1 className="text-2xl font-bold text-gray-900">Menú</h1>
-            <Link href="/cart">
-              <Button variant="primary" className="relative">
-                <ShoppingCart className="w-5 h-5 mr-2" />
-                Carrito
-                {getItemCount() > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
-                    {getItemCount()}
-                  </span>
-                )}
-              </Button>
-            </Link>
+            <div className="flex gap-2">
+              {session && (
+                <Link href="/perfil">
+                  <Button variant="secondary" size="sm">
+                    <User className="w-5 h-5 sm:mr-2" />
+                    <span className="hidden sm:inline">Perfil</span>
+                  </Button>
+                </Link>
+              )}
+              <Link href="/cart">
+                <Button variant="primary" className="relative">
+                  <ShoppingCart className="w-5 h-5 sm:mr-2" />
+                  <span className="hidden sm:inline">Carrito</span>
+                  {getItemCount() > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
+                      {getItemCount()}
+                    </span>
+                  )}
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </header>

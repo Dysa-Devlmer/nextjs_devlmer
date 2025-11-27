@@ -367,3 +367,82 @@ export const welcomeEmail = (user: { name: string; email: string }) => {
 </html>
   `;
 };
+
+export const passwordResetEmail = (data: {
+  userName: string;
+  resetUrl: string;
+}) => {
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recuperación de Contraseña</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f3f4f6;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 20px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <tr>
+            <td style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); padding: 40px 20px; text-align: center;">
+              <div style="font-size: 48px; margin-bottom: 10px;">🔐</div>
+              <h1 style="margin: 0; color: #ffffff; font-size: 24px;">Recuperación de Contraseña</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 40px 30px;">
+              <p style="margin: 0 0 20px 0; color: #111827; font-size: 18px;">
+                Hola <strong>${data.userName}</strong>,
+              </p>
+              <p style="margin: 0 0 20px 0; color: #6b7280; font-size: 16px; line-height: 1.6;">
+                Recibimos una solicitud para restablecer la contraseña de tu cuenta en FastFood.
+              </p>
+              <p style="margin: 0 0 20px 0; color: #6b7280; font-size: 16px; line-height: 1.6;">
+                Si no solicitaste este cambio, puedes ignorar este correo de forma segura.
+              </p>
+
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${data.resetUrl}" style="display: inline-block; background-color: #8b5cf6; color: #ffffff; text-decoration: none; padding: 15px 40px; border-radius: 8px; font-size: 16px; font-weight: 600;">
+                  Restablecer Contraseña
+                </a>
+              </div>
+
+              <div style="background-color: #fef3c7; border-radius: 8px; padding: 20px; margin-top: 30px;">
+                <p style="margin: 0 0 10px 0; color: #92400e; font-size: 14px; font-weight: 600;">
+                  ⚠️ Información Importante
+                </p>
+                <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.6;">
+                  Este enlace es válido por <strong>1 hora</strong>. Si expira, deberás solicitar un nuevo restablecimiento de contraseña.
+                </p>
+              </div>
+
+              <div style="background-color: #fee2e2; border-radius: 8px; padding: 20px; margin-top: 20px;">
+                <p style="margin: 0 0 10px 0; color: #991b1b; font-size: 14px; font-weight: 600;">
+                  🛡️ Seguridad
+                </p>
+                <p style="margin: 0; color: #991b1b; font-size: 14px; line-height: 1.6;">
+                  Nunca compartas este enlace con nadie. Si no solicitaste este cambio, te recomendamos cambiar tu contraseña inmediatamente o contactar a nuestro equipo de soporte.
+                </p>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+              <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 14px;">
+                ¿Necesitas ayuda? Contáctanos a soporte@fastfood.com
+              </p>
+              <p style="margin: 0; color: #9ca3af; font-size: 12px;">
+                © 2024 FastFood. Todos los derechos reservados.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `;
+};

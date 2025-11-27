@@ -58,14 +58,16 @@ model User {
   role          Role      @default(CLIENTE)
   telefono      String?
   direccion     String?
+  activo        Boolean   @default(true)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts      Account[]
-  sessions      Session[]
-  orders        Order[]
-  tickets       Ticket[]
-  chatMessages  ChatMessage[]
+  accounts            Account[]
+  sessions            Session[]
+  orders              Order[]
+  tickets             Ticket[]
+  chatMessages        ChatMessage[]
+  passwordResetTokens PasswordResetToken[]
 
   @@map("users")
 }
@@ -216,4 +218,17 @@ model ChatMessage {
   user      User     @relation(fields: [userId], references: [id])
 
   @@map("chat_messages")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expires   DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
 }

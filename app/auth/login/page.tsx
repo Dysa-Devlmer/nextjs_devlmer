@@ -96,6 +96,11 @@ export default function LoginPage() {
                     disabled={isLoading}
                   />
                 </div>
+                <div className="text-right mt-2">
+                  <Link href="/auth/forgot-password" className="text-sm text-orange-600 hover:text-orange-700">
+                    ¿Olvidaste tu contraseña?
+                  </Link>
+                </div>
               </div>
 
               <Button type="submit" variant="primary" fullWidth disabled={isLoading}>
