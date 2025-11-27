@@ -1,50 +1,46 @@
 'use client';
 
-import { useState, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Send } from 'lucide-react';
-import { useTickets } from '@/context/TicketContext';
+import { ArrowLeft, Send, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input, Textarea, Select } from '@/components/ui/Input';
-import { TicketCategory, TicketPriority } from '@/types';
 
-function NuevoTicketForm() {
+export default function NuevoTicketPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const { addTicket } = useTickets();
-
-  const clienteId = searchParams.get('clienteId') || 'cliente1';
+  const { data: session } = useSession();
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
-    clienteNombre: '',
-    clienteEmail: '',
-    clienteTelefono: '',
-    numeroPedido: '',
-    categoria: 'pedido_incorrecto' as TicketCategory,
-    prioridad: 'media' as TicketPriority,
     asunto: '',
     descripcion: '',
+    prioridad: 'MEDIA',
+    categoria: 'general',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  if (!session) {
+    redirect('/auth/login');
+  }
+
   const categorias = [
-    { value: 'pedido_incorrecto', label: 'Pedido Incorrecto' },
-    { value: 'pedido_frio', label: 'Pedido Frío' },
-    { value: 'falta_producto', label: 'Falta Producto' },
-    { value: 'calidad_producto', label: 'Calidad del Producto' },
-    { value: 'tiempo_entrega', label: 'Tiempo de Entrega' },
-    { value: 'servicio_cliente', label: 'Servicio al Cliente' },
-    { value: 'otro', label: 'Otro' },
+    { value: 'pedido', label: 'Problema con Pedido' },
+    { value: 'producto', label: 'Problema con Producto' },
+    { value: 'entrega', label: 'Problema de Entrega' },
+    { value: 'pago', label: 'Problema de Pago' },
+    { value: 'general', label: 'Consulta General' },
   ];
 
   const prioridades = [
-    { value: 'baja', label: 'Baja' },
-    { value: 'media', label: 'Media' },
-    { value: 'alta', label: 'Alta' },
-    { value: 'urgente', label: 'Urgente' },
+    { value: 'BAJA', label: 'Baja' },
+    { value: 'MEDIA', label: 'Media' },
+    { value: 'ALTA', label: 'Alta' },
+    { value: 'URGENTE', label: 'Urgente' },
   ];
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -58,10 +54,6 @@ function NuevoTicketForm() {
   const validate = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.clienteNombre.trim()) newErrors.clienteNombre = 'El nombre es requerido';
-    if (!formData.clienteEmail.trim()) newErrors.clienteEmail = 'El email es requerido';
-    if (!formData.clienteTelefono.trim()) newErrors.clienteTelefono = 'El teléfono es requerido';
-    if (!formData.numeroPedido.trim()) newErrors.numeroPedido = 'El número de pedido es requerido';
     if (!formData.asunto.trim()) newErrors.asunto = 'El asunto es requerido';
     if (!formData.descripcion.trim()) newErrors.descripcion = 'La descripción es requerida';
 
@@ -69,19 +61,35 @@ function NuevoTicketForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validate()) {
       return;
     }
 
-    addTicket({
-      ...formData,
-      clienteId,
-    });
+    setLoading(true);
 
-    router.push('/cliente');
+    try {
+      const response = await fetch('/api/tickets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        const ticket = await response.json();
+        router.push(`/cliente/tickets/${ticket.id}`);
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Error al crear ticket');
+      }
+    } catch (error) {
+      console.error('Error al crear ticket:', error);
+      alert('Error al crear ticket');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -89,11 +97,11 @@ function NuevoTicketForm() {
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/cliente" className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
+            <Link href="/cliente/tickets" className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
               <ArrowLeft className="w-5 h-5" />
               <span>Volver</span>
             </Link>
-            <h1 className="text-2xl font-bold text-gray-900">Nuevo Ticket</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Crear Nuevo Ticket</h1>
             <div className="w-20"></div>
           </div>
         </div>
@@ -102,103 +110,74 @@ function NuevoTicketForm() {
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Card>
           <CardHeader>
-            <CardTitle>Crear Nuevo Reclamo</CardTitle>
+            <CardTitle>Información del Ticket</CardTitle>
+            <p className="text-sm text-gray-600 mt-2">
+              Cuéntanos sobre tu problema o consulta y te responderemos lo antes posible
+            </p>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Datos del Cliente */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Datos del Cliente</h3>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <Input
-                    label="Nombre Completo"
-                    name="clienteNombre"
-                    value={formData.clienteNombre}
-                    onChange={handleChange}
-                    error={errors.clienteNombre}
-                    placeholder="Juan Pérez"
-                  />
-                  <Input
-                    label="Email"
-                    type="email"
-                    name="clienteEmail"
-                    value={formData.clienteEmail}
-                    onChange={handleChange}
-                    error={errors.clienteEmail}
-                    placeholder="juan@email.com"
-                  />
-                  <Input
-                    label="Teléfono"
-                    type="tel"
-                    name="clienteTelefono"
-                    value={formData.clienteTelefono}
-                    onChange={handleChange}
-                    error={errors.clienteTelefono}
-                    placeholder="555-0000"
-                  />
-                  <Input
-                    label="Número de Pedido"
-                    name="numeroPedido"
-                    value={formData.numeroPedido}
-                    onChange={handleChange}
-                    error={errors.numeroPedido}
-                    placeholder="PED-1234"
-                  />
-                </div>
+              <Input
+                label="Asunto *"
+                name="asunto"
+                value={formData.asunto}
+                onChange={handleChange}
+                placeholder="Ej: Producto equivocado en mi pedido"
+                error={errors.asunto}
+              />
+
+              <Textarea
+                label="Descripción *"
+                name="descripcion"
+                value={formData.descripcion}
+                onChange={handleChange}
+                placeholder="Describe detalladamente tu problema o consulta..."
+                rows={6}
+                error={errors.descripcion}
+              />
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <Select
+                  label="Categoría"
+                  name="categoria"
+                  value={formData.categoria}
+                  onChange={handleChange}
+                  options={categorias}
+                />
+
+                <Select
+                  label="Prioridad"
+                  name="prioridad"
+                  value={formData.prioridad}
+                  onChange={handleChange}
+                  options={prioridades}
+                />
               </div>
 
-              {/* Detalles del Reclamo */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Detalles del Reclamo</h3>
-                <div className="space-y-4">
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <Select
-                      label="Categoría"
-                      name="categoria"
-                      value={formData.categoria}
-                      onChange={handleChange}
-                      options={categorias}
-                    />
-                    <Select
-                      label="Prioridad"
-                      name="prioridad"
-                      value={formData.prioridad}
-                      onChange={handleChange}
-                      options={prioridades}
-                    />
-                  </div>
-
-                  <Input
-                    label="Asunto"
-                    name="asunto"
-                    value={formData.asunto}
-                    onChange={handleChange}
-                    error={errors.asunto}
-                    placeholder="Breve descripción del problema"
-                  />
-
-                  <Textarea
-                    label="Descripción Detallada"
-                    name="descripcion"
-                    value={formData.descripcion}
-                    onChange={handleChange}
-                    error={errors.descripcion}
-                    placeholder="Describe con detalle el problema que experimentaste..."
-                    rows={6}
-                  />
-                </div>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p className="text-sm text-blue-900">
+                  <strong>💡 Tip:</strong> Después de crear el ticket, podrás chatear en tiempo real con nuestro equipo de soporte.
+                </p>
               </div>
 
-              {/* Botones */}
               <div className="flex gap-4 pt-4">
-                <Link href="/cliente" className="flex-1">
+                <Link href="/cliente/tickets" className="flex-1">
                   <Button type="button" variant="secondary" fullWidth>
                     Cancelar
                   </Button>
                 </Link>
-                <Button type="submit" variant="primary" className="flex-1">
-                  <Send className="w-5 h-5 mr-2" />
-                  Enviar Ticket
+                <Button type="submit" variant="primary" className="flex-1" disabled={loading}>
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Creando...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-5 h-5 mr-2" />
+                      Crear Ticket
+                    </>
+                  )}
                 </Button>
               </div>
             </form>
@@ -206,13 +185,5 @@ function NuevoTicketForm() {
         </Card>
       </main>
     </div>
-  );
-}
-
-export default function NuevoTicketPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Cargando...</div>}>
-      <NuevoTicketForm />
-    </Suspense>
   );
 }
