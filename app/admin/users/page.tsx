@@ -9,6 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input, Select } from '@/components/ui/Input';
 import { Badge } from '@/components/ui/Badge';
+import { Pagination, ItemsPerPageSelect } from '@/components/ui/Pagination';
+import { usePagination } from '@/hooks/usePagination';
 
 interface User {
   id: string;
@@ -31,6 +33,16 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
+
+  // Pagination
+  const {
+    currentPage,
+    totalPages,
+    itemsPerPage,
+    paginatedItems: paginatedUsers,
+    setCurrentPage,
+    setItemsPerPage,
+  } = usePagination({ items: users, initialItemsPerPage: 10 });
 
   if (!session || session.user.role !== 'ADMIN') {
     redirect('/dashboard');
@@ -211,7 +223,7 @@ export default function AdminUsersPage() {
         {/* Filtros */}
         <Card className="mb-6">
           <CardContent className="pt-6">
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-3 gap-4 mb-4">
               <div className="md:col-span-2 relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <Input
@@ -232,6 +244,13 @@ export default function AdminUsersPage() {
                   { value: 'STAFF', label: 'Staff' },
                   { value: 'CLIENTE', label: 'Cliente' },
                 ]}
+              />
+            </div>
+            <div className="flex justify-end">
+              <ItemsPerPageSelect
+                value={itemsPerPage}
+                onChange={setItemsPerPage}
+                options={[10, 25, 50, 100]}
               />
             </div>
           </CardContent>
@@ -266,7 +285,7 @@ export default function AdminUsersPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {users.map((user) => (
+                {paginatedUsers.map((user) => (
                   <tr key={user.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
@@ -326,6 +345,17 @@ export default function AdminUsersPage() {
                 ))}
               </tbody>
             </table>
+
+            {/* Paginación */}
+            <div className="px-6 py-4 bg-gray-50">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={users.length}
+                itemsPerPage={itemsPerPage}
+                onPageChange={setCurrentPage}
+              />
+            </div>
           </div>
         )}
       </main>
