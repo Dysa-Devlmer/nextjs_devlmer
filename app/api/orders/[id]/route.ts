@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { sendEmail } from '@/lib/resend';
 import { orderStatusUpdateEmail } from '@/lib/emailTemplates';
+import { notifyOrderStatusChange } from '@/lib/notifications';
 
 // GET - Obtener pedido por ID
 export async function GET(
@@ -122,6 +123,19 @@ export async function PUT(
     } catch (emailError) {
       console.error('Error al enviar email de actualización:', emailError);
       // No fallar la actualización si el email falla
+    }
+
+    // Crear notificación in-app
+    try {
+      await notifyOrderStatusChange(
+        order.userId,
+        order.id,
+        order.numeroOrden,
+        order.estado
+      );
+    } catch (notifError) {
+      console.error('Error al crear notificación:', notifError);
+      // No fallar la actualización si la notificación falla
     }
 
     return NextResponse.json(order);

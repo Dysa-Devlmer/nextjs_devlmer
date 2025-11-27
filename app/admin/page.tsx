@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { NotificationBell } from '@/components/ui/NotificationBell';
 import {
   BarChart,
   Bar,
@@ -190,7 +191,8 @@ export default function AdminPage() {
               <h1 className="text-2xl font-bold text-gray-900">Panel Administrativo</h1>
               <p className="text-sm text-gray-600">Dashboard de Gestión</p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
+              <NotificationBell />
               <Link href="/perfil">
                 <Button variant="secondary" size="sm">
                   <User className="w-4 h-4 mr-2" />

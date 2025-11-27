@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useCart } from '@/context/CartContext';
+import { NotificationBell } from '@/components/ui/NotificationBell';
 
 interface Category {
   id: string;
@@ -103,14 +104,17 @@ export default function MenuPage() {
               <span>Volver</span>
             </Link>
             <h1 className="text-2xl font-bold text-gray-900">Menú</h1>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               {session && (
-                <Link href="/perfil">
-                  <Button variant="secondary" size="sm">
-                    <User className="w-5 h-5 sm:mr-2" />
-                    <span className="hidden sm:inline">Perfil</span>
-                  </Button>
-                </Link>
+                <>
+                  <NotificationBell />
+                  <Link href="/perfil">
+                    <Button variant="secondary" size="sm">
+                      <User className="w-5 h-5 sm:mr-2" />
+                      <span className="hidden sm:inline">Perfil</span>
+                    </Button>
+                  </Link>
+                </>
               )}
               <Link href="/cart">
                 <Button variant="primary" className="relative">

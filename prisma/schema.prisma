@@ -68,6 +68,7 @@ model User {
   tickets             Ticket[]
   chatMessages        ChatMessage[]
   passwordResetTokens PasswordResetToken[]
+  notifications       Notification[]
 
   @@map("users")
 }
@@ -231,4 +232,27 @@ model PasswordResetToken {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("password_reset_tokens")
+}
+
+enum NotificationType {
+  ORDER_STATUS
+  TICKET_RESPONSE
+  SYSTEM
+  PROMOTION
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String           @db.Text
+  read      Boolean          @default(false)
+  link      String?
+  createdAt DateTime         @default(now())
+
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@map("notifications")
 }
