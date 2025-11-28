@@ -2,9 +2,34 @@
 
 Guía paso a paso para tener el sistema funcionando en menos de 10 minutos.
 
-## Opción 1: Desarrollo con Docker (Recomendado)
+## ⚡ Opción Rápida: Script Automático (Recomendado)
 
-La forma más rápida de empezar. Solo necesitas Docker instalado.
+La forma MÁS rápida. Un solo comando configura todo:
+
+```bash
+# Clonar repositorio
+git clone https://github.com/Dysa-Devlmer/nextjs_devlmer.git
+cd nextjs_devlmer
+
+# Configurar todo automáticamente
+npm run setup
+
+# Iniciar desarrollo
+npm run dev:start
+```
+
+¡Listo! El script configura Docker, PostgreSQL, .env.local, y datos de prueba automáticamente.
+
+**Usuarios de prueba creados:**
+- Admin: `admin@fastfood.com` / `password123`
+- Staff: `staff@fastfood.com` / `password123`
+- Cliente: `juan@email.com` / `password123`
+
+---
+
+## Opción 1: Desarrollo con Docker (Paso a Paso)
+
+Si prefieres entender cada paso, sigue esta guía manual.
 
 ### 1. Clonar el repositorio
 
@@ -193,25 +218,59 @@ Abre [http://localhost:8080](http://localhost:8080)
 
 ---
 
-## Comandos Útiles
+## 📋 Comandos Disponibles
+
+### Scripts Automáticos
+
+```bash
+# Setup completo (primera vez)
+npm run setup            # Configura todo automáticamente
+
+# Desarrollo diario
+npm run dev:start        # Inicia PostgreSQL + servidor de desarrollo
+npm run dev:reset        # Reset completo de DB con datos frescos
+```
+
+### Comandos NPM
 
 ```bash
 # Desarrollo
 npm run dev              # Iniciar servidor de desarrollo
+npm run dev:start        # Iniciar con Docker automático
+npm run build            # Build para producción
+npm start                # Servidor de producción
 
 # Base de datos
 npm run db:push          # Aplicar cambios del schema
 npm run db:seed          # Poblar con datos de prueba
-npm run db:studio        # Abrir Prisma Studio
-
-# Producción
-npm run build            # Compilar para producción
-npm start                # Iniciar servidor de producción
+npm run db:studio        # Abrir Prisma Studio (GUI)
+npm run db:reset         # Reset completo (⚠️ elimina datos)
+npm run db:generate      # Generar Prisma Client
 
 # Docker
-docker-compose up -d     # Iniciar todos los servicios
-docker-compose down      # Detener todos los servicios
-docker-compose logs -f   # Ver logs en tiempo real
+npm run docker:up        # Iniciar todos los servicios
+npm run docker:down      # Detener servicios
+npm run docker:logs      # Ver logs en tiempo real
+
+# Calidad de código
+npm run type-check       # Verificar tipos TypeScript
+npm run lint             # Ejecutar linter
+```
+
+### Makefile (Alternativa)
+
+Si prefieres usar `make`:
+
+```bash
+make help          # Ver todos los comandos disponibles
+make setup         # Setup completo
+make dev           # Iniciar desarrollo
+make db-studio     # Prisma Studio
+make db-reset      # Reset de DB
+make docker-up     # Iniciar Docker
+make adminer       # Iniciar Adminer (GUI web)
+make info          # Info del proyecto
+make status        # Estado de servicios
 ```
 
 ---
