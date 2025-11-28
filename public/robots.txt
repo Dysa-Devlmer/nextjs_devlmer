@@ -1,0 +1,25 @@
+# robots.txt para FastFood Management System
+
+# Permitir todos los bots a páginas públicas
+User-agent: *
+Allow: /
+Allow: /menu
+Allow: /auth/login
+Allow: /auth/register
+
+# Bloquear acceso a áreas privadas
+Disallow: /admin
+Disallow: /staff
+Disallow: /cliente
+Disallow: /api
+Disallow: /perfil
+Disallow: /cart
+Disallow: /checkout
+Disallow: /orders
+
+# Archivos y directorios del sistema
+Disallow: /_next/
+Disallow: /static/
+
+# Sitemap
+Sitemap: https://fastfood.com/sitemap.xml
