@@ -2,6 +2,15 @@
 
 Sistema integral de gestión para restaurantes de comida rápida que incluye pedidos en línea, gestión de productos, atención posventa y panel administrativo completo.
 
+## 📚 Documentación
+
+- **[🚀 QUICKSTART.md](QUICKSTART.md)** - Guía de inicio rápido (10 minutos)
+- **[⚙️ SETUP.md](SETUP.md)** - Configuración detallada de PostgreSQL
+- **[🔒 SECURITY.md](SECURITY.md)** - Guía completa de seguridad
+- **[🚢 DEPLOYMENT.md](DEPLOYMENT.md)** - Guías de despliegue (Vercel, Railway, Docker)
+- **[🤝 CONTRIBUTING.md](CONTRIBUTING.md)** - Guía para contribuidores
+- **[📝 CHANGELOG.md](CHANGELOG.md)** - Historial de cambios del proyecto
+
 ## ✨ Características Principales
 
 ### 🛒 Sistema de Pedidos en Línea
