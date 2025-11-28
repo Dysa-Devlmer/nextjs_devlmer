@@ -3,6 +3,8 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from './prisma';
 import bcrypt from 'bcryptjs';
+import { securityLogger } from './securityLogger';
+import { validateEmail } from './validation';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as any,
@@ -15,15 +17,46 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
+          securityLogger.logLoginFailed(
+            credentials?.email || 'unknown',
+            'unknown',
+            'Email o contraseña no proporcionados'
+          );
           throw new Error('Email y contraseña requeridos');
         }
 
+        // Validar formato de email
+        const emailValidation = validateEmail(credentials.email);
+        if (!emailValidation.valid) {
+          securityLogger.logLoginFailed(
+            credentials.email,
+            'unknown',
+            'Formato de email inválido'
+          );
+          throw new Error('Credenciales inválidas');
+        }
+
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email }
+          where: { email: credentials.email.toLowerCase().trim() }
         });
 
         if (!user || !user.password) {
+          securityLogger.logLoginFailed(
+            credentials.email,
+            'unknown',
+            'Usuario no encontrado o sin contraseña'
+          );
           throw new Error('Credenciales inválidas');
+        }
+
+        // Verificar si el usuario está activo
+        if (!user.activo) {
+          securityLogger.logLoginFailed(
+            credentials.email,
+            'unknown',
+            'Usuario desactivado'
+          );
+          throw new Error('Cuenta desactivada. Contacta al administrador.');
         }
 
         const isPasswordValid = await bcrypt.compare(
@@ -32,8 +65,16 @@ export const authOptions: NextAuthOptions = {
         );
 
         if (!isPasswordValid) {
+          securityLogger.logLoginFailed(
+            credentials.email,
+            'unknown',
+            'Contraseña incorrecta'
+          );
           throw new Error('Credenciales inválidas');
         }
+
+        // Log exitoso
+        securityLogger.logLoginSuccess(user.id, user.email, 'unknown');
 
         return {
           id: user.id,
