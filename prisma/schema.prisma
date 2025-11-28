@@ -256,3 +256,72 @@ model Notification {
   @@index([userId, read])
   @@map("notifications")
 }
+
+model RestaurantConfig {
+  id                    String   @id @default(cuid())
+  // Información General
+  restaurantName        String   @default("FastFood")
+  logo                  String?
+  tagline               String?
+  description           String?  @db.Text
+
+  // Contacto
+  email                 String?
+  phone                 String?
+  address               String?  @db.Text
+  city                  String?
+  state                 String?
+  zipCode               String?
+  country               String   @default("México")
+
+  // Redes Sociales
+  facebook              String?
+  instagram             String?
+  twitter               String?
+  whatsapp              String?
+
+  // Horarios
+  mondayOpen            String?
+  mondayClose           String?
+  tuesdayOpen           String?
+  tuesdayClose          String?
+  wednesdayOpen         String?
+  wednesdayClose        String?
+  thursdayOpen          String?
+  thursdayClose         String?
+  fridayOpen            String?
+  fridayClose           String?
+  saturdayOpen          String?
+  saturdayClose         String?
+  sundayOpen            String?
+  sundayClose           String?
+
+  // Configuración de Pedidos
+  enableOrders          Boolean  @default(true)
+  minOrderAmount        Float    @default(0)
+  deliveryFee           Float    @default(0)
+  freeDeliveryMinimum   Float?
+  estimatedDeliveryTime Int      @default(30) // minutos
+  taxRate               Float    @default(0.0) // porcentaje
+
+  // Métodos de Pago
+  acceptCash            Boolean  @default(true)
+  acceptCard            Boolean  @default(true)
+  acceptTransfer        Boolean  @default(false)
+
+  // Notificaciones
+  notifyNewOrders       Boolean  @default(true)
+  notifyNewTickets      Boolean  @default(true)
+  adminEmailForNotif    String?
+
+  // SEO
+  metaTitle             String?
+  metaDescription       String?  @db.Text
+  metaKeywords          String?
+
+  // Timestamps
+  updatedAt             DateTime @updatedAt
+  createdAt             DateTime @default(now())
+
+  @@map("restaurant_config")
+}

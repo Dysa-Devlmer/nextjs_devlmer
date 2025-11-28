@@ -17,6 +17,7 @@ import {
   FileSpreadsheet,
   Download,
   User,
+  Sliders,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -288,7 +289,7 @@ export default function AdminPage() {
             <CardTitle>Gestión Rápida</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               <Link href="/admin/products">
                 <Button variant="primary" fullWidth>
                   <Package className="w-5 h-5 mr-2" />
@@ -317,6 +318,12 @@ export default function AdminPage() {
                 <Button variant="secondary" fullWidth>
                   <AlertCircle className="w-5 h-5 mr-2" />
                   Ver Tickets
+                </Button>
+              </Link>
+              <Link href="/admin/config">
+                <Button variant="secondary" fullWidth>
+                  <Sliders className="w-5 h-5 mr-2" />
+                  Configuración
                 </Button>
               </Link>
             </div>
